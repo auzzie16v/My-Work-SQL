@@ -1,0 +1,35 @@
+sakila sample queries 
+
+SELECT c.customer_id, 
+       CONCAT(c.first_name, ' ', c.last_name) AS customer_name, 
+       COUNT(r.rental_id) AS total_rentals
+FROM customer c
+JOIN rental r ON c.customer_id = r.customer_id
+GROUP BY c.customer_id, customer_name
+ORDER BY total_rentals DESC
+LIMIT 5;
+SELECT f.film_id, f.title, COUNT(r.rental_id) AS rental_count
+FROM film f
+JOIN inventory i ON f.film_id = i.film_id
+JOIN rental r ON i.inventory_id = r.inventory_id
+GROUP BY f.film_id, f.title
+ORDER BY rental_count DESC
+LIMIT 10;
+SELECT f.title, 
+       COUNT(r.rental_id) AS rental_count, 
+       RANK() OVER (ORDER BY COUNT(r.rental_id) DESC) AS ranking
+FROM film f
+JOIN inventory i ON f.film_id = i.film_id
+JOIN rental r ON i.inventory_id = r.inventory_id
+GROUP BY f.film_id, f.title;
+SELECT VERSION();
+WITH customer_spending AS (
+    SELECT c.customer_id, 
+           CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
+           SUM(p.amount) AS total_spent
+    FROM customer c
+    JOIN payment p ON c.customer_id = p.customer_id
+    GROUP BY c.customer_id, customer_name
+)
+SELECT * FROM customer_spending
+WHERE total_spent > 100;
